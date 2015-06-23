@@ -1,1 +1,58 @@
-fdsdadfa
+#coding=utf-8
+
+import math
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+txt_num =len(text)
+print'total texts:',txt_num
+
+fv_tf=[]   #ある文書中の単語の出現回数を格納するための配列
+fv_df={}#単語の出現文書数を格納するためのデイクショナリ
+word_count=[]
+
+fv_tf_idf=[]  #ある文書中の単語の特徴量を格納するための配列
+count_flag={} #fv_dfを計算する上で必要なフラグを格納するためのデイクショナリ
+
+for txt_id, txt in enumerate(text):
+        tagger=MeCab.Tagger('')
+        encoded_txt=txt.encode('utf-8')
+        node = tagger.parseToNode(encoded_txt)
+        fv={}#単語の出現回数を格納するためのデイクショナリ
+        words=0#ある文書の単語の総出現回数
+
+        for word in fv_df.keys():
+                count_flag[word]=False
+                surface=node.surface.decode('utf-8')#形態素解析により得られた単語
+                words +=1
+
+                if surface in fv_df.keys():#fv_df にキー値がsurfaceの要素があれば
+                        if count_flag[surface]==False:#フラグを確認し、falseであれば
+                                fv_df[surface] +=1#出現文書数を1増やす
+                                count_flag[surface]=True#フラグをtrueにする
+                else:
+                        fv_df[surface]=1#新たにキー値がsurfaceの要素を作り、値として1を代入する
+                        count_flag[surface]=True#フラグをtrueにする
+        fv_tf.append(fv)
+        word_count.append(words)
+
+
+for txt_id, fv in enumerate(fv_tf):
+        tf={}
+        idf={}
+        tf_idf={}
+        for key in fv.keys():
+                tf[key]=float(fv[key])/word_count[txt_id]
+                idf[key]=math.log(float(txt_num)/fv_df[key])
+                tf_idf[key]=(tf[key]*idf[key],tf[key],idf[key],fv[key],fv_df[key])
+        tf_idf=sorted(tf_idf.items(),key=lambda x:x[1][0],reverse=True)#tf_idf値で降順ソート
+        fv_tf_idf.append(tf_idf)
+
+for txt_id, fv in enumerate(fv_tf_idf):
+        print 'This is the tf-idf of text', txt_id
+        print 'total words:', word_count[txt_id]
+
+
+        for word, tf_idf in fv:
+                print'%s    \t\t tf-idf:%lf   \ttf:%lf  \tidf:%lf  \tterm_count:%d  \tdocument_count:%d' %(word, tf_idf[0], tf_idf[1], tf_idf[2], tf_idf[3], tf_idf[4])
