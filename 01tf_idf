@@ -24,9 +24,11 @@ for txt_id, txt in enumerate(text):
 
         for word in fv_df.keys():
                 count_flag[word]=False
+        while node.next:
+                node=node.next
                 surface=node.surface.decode('utf-8')#形態素解析により得られた単語
                 words +=1
-
+                fv[surface]=fv.get(surface,0)+1 #fvにキー値がsurface()の要素があれば、それに1を加え、なければ新しくキー値がsurfaceの要素をデイクショナリに加え、値を1にする
                 if surface in fv_df.keys():#fv_df にキー値がsurfaceの要素があれば
                         if count_flag[surface]==False:#フラグを確認し、falseであれば
                                 fv_df[surface] +=1#出現文書数を1増やす
