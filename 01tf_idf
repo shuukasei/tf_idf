@@ -5,6 +5,17 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+
+identify=string.maketrans('wwwhttp','       ')
+data=f.readlines()
+
+text=[]
+delEStr=string.punctuation+string.digits+'% '+string.hexdigits+string.ascii_letters
+
+for s in data:
+        s=s.translate(identify,delEStr)
+        text.append(s)
+
 txt_num =len(text)
 print'total texts:',txt_num
 
