@@ -1,0 +1,25 @@
+#coding:utf-8
+import MeCab
+import codecs
+
+def getNoun(text):
+        tagger=MeCab.Tagger("")
+        text_encoded=text.encode('utf-8')
+        node=tagger.parseToNode(text_encoded)
+        nouns={}
+        while node:
+                noun=node.feature.split(',')[0]
+                if noun=='名詞':
+                        nouns.setdefault(node.surface,0)
+                        nouns[node.surface]+=1
+                        #print node.surface,nouns[node.surface]
+                node=node.next
+        return nouns
+
+
+text=codecs.open('sennto.txt','r','utf-8').read()
+#text=open('sennto.py','r').readlines()
+nouns=getNoun(text)
+for vaule ,count in sorted(nouns.items(),key=lambda x:x[1],reverse=True):
+        if count >0:
+                print vaule ,count
