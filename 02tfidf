@@ -1,0 +1,103 @@
+//dfの計算 tfidf01.py
+#coding:utf-8
+import MeCab
+import codecs
+import string
+import re
+
+identify=string.maketrans('http','    ')
+delEstr=string.punctuation+string.digits+'% '+string.hexdigits+string.ascii_letters
+f=open('200401.txt.utf8','r')
+data=f.readlines()
+for text_id, text in enumerate(data):
+        text=text.strip('\n')
+        text=text.translate(identify,delEstr)
+
+        tagger=MeCab.Tagger('')
+        node= tagger.parseToNode(text)
+        while node.next:
+                node=node.next
+                if node.feature.split(',')[0]=='名詞':
+                        print "%s\t%s" %(node.surface,text_id+1)
+              
+//sort,uniqコマンドを使う
+python tfidf01.py > dic1.txt
+cat dic1.txt | uniq -c > dic2.txt
+cut -b9- dic2.txt > dic3.txt
+cut -f1 dic3.txt > dic4.txt
+sort dic4.txt | uniq -c | sort -nrk 1 > dic5.txt
+
+//tfの計算  tfidf02.py
+coding:utf-8
+import MeCab
+import codecs
+import string
+import re
+import math
+import sys
+#import tfidf_third
+
+#docs=tfidf_third.docs
+docs=28790
+
+fv_df={}
+df={}
+
+f=open('dic5.txt','r')
+data=f.readlines()
+for stri in data:
+        stri=stri.strip()
+
+        key=re.search(r'[\D]+',stri)
+        k=key.group(0)[1:]
+
+        value=re.search(r'\d',stri)
+        fv_df[k]=float(value.group(0))
+
+        df[k]=math.log(docs/fv_df[k])
+
+#       fv_df[k]=format(fv_df[k],'.2f')
+
+#for key in fv_df.keys():
+#       print 'word=%s, df=%s' %(key,fv_df[key])
+
+identify=string.maketrans('http','    ')
+delEstr=string.punctuation+string.digits+'% '+string.hexdigits+string.ascii_letters
+
+words=[]
+tf_word=[]
+#data=codecs.open('sennto.txt','r','utf-8').readlines()
+f=open('ten_200401.txt','r')
+data=f.readlines()
+for text_id, text in enumerate(data):
+        text=text.strip('\n')
+        text=text.translate(identify,delEstr)
+        word=0
+        tagger=MeCab.Tagger('')
+        nodes={}
+        node= tagger.parseToNode(text)
+        while node.next:
+                node=node.next
+                word+=1
+                if node.feature.split(',')[0]=='名詞':
+                        nodes.setdefault(node.surface,0)
+                        nodes[node.surface]+=1
+        tf_word.append(nodes)
+        words.append(word)
+
+
+for text_id, fv in enumerate(tf_word):
+        if text_id < 10:
+                n=0
+                print '\nthis is the text: %d ' % (text_id+1)
+                tf={}
+                tf_idf={}
+                for key in fv.keys():
+                        tf[key]=float(fv[key])/words[text_id]
+                      # tf[key]=format(tf[key],'.2f')
+                        tf_idf[key]=(tf[key]*df[key],tf[key],df[key],fv[key],fv_df[key])
+                tf_idf=sorted(tf_idf.items(),key=lambda x:x[1][0],reverse=True)
+                for word,value in tf_idf:
+                        n+=1
+                        if n<11:
+                                print '%s  \t\t tf_idf:%lf  \t tf:%lf  \t idf:%lf \t term_count: %d \t document_count: %d ' %(word,value[0],value[1],value[2],value[3],value[4])
