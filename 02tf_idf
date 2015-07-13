@@ -84,7 +84,7 @@ for text_id, text in enumerate(data):
                         nodes[node.surface]+=1
         tf_word.append(nodes)
         words.append(word)
-
+f.close()
 
 for text_id, fv in enumerate(tf_word):
         if text_id < 10:
@@ -101,3 +101,51 @@ for text_id, fv in enumerate(tf_word):
                         n+=1
                         if n<11:
                                 print '%s  \t\t tf_idf:%lf  \t tf:%lf  \t idf:%lf \t term_count: %d \t document_count: %d ' %(word,value[0],value[1],value[2],value[3],value[4])
+
+def bunnka(text):
+        h=open('onebunnka_200401.txt','w')
+        bunn=text.split('。')
+        for n in bunn:
+                if n!='\n':
+                        n=n.lstrip()
+                        h.write(n+'。'+'\n')
+        h.close()
+def summary():
+        sents={}
+        f=open('onebunnka_200401.txt','r')
+        data=f.readlines()
+        for text_id, text in enumerate(data):
+                text=text.strip('\n')
+                text=text.translate(identify,delEstr)
+                sumn=0.0
+                tagger=MeCab.Tagger('')
+                node= tagger.parseToNode(text)
+                while node.next:
+                        node=node.next
+                        if node.feature.split(',')[0]=='名詞':
+                                surface=node.surface
+                                for surface in tfidf.keys():
+                        #               print '%s, %lf'% (surface,tfidf[surface])
+                                        sumn+=tfidf[surface]
+        #       print '%s,%lf'% (text,sumn)
+                sents[text]=sumn
+        f.close()
+        
+        sents=sorted(sents.items(),key=lambda x:x[1],reverse=True)
+        k=0
+        for key in sents:
+                k+=1
+                if k<4:
+                        print key[0]
+
+file=open("ten_200401.txt",'r')
+s=0
+while 1:
+        line=file.readline()
+        if not line:
+                break
+        s+=1
+        print '\n the summarization of %d'%(s)
+        bunnka(line)
+        summary()
+file.close()
