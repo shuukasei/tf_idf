@@ -47,16 +47,11 @@ f=open('dic5.txt','r')
 data=f.readlines()
 for stri in data:
         stri=stri.strip()
-
-        key=re.search(r'[\D]+',stri)
-        k=key.group(0)[1:]
-
-        value=re.search(r'\d',stri)
-        fv_df[k]=float(value.group(0))
-
+　　　　stri=stri.strip()
+        s=stri.split(' ')
+        k=s[1]
+        fv_df[k]=float(s[0])
         df[k]=math.log(docs/fv_df[k])
-
-#       fv_df[k]=format(fv_df[k],'.2f')
 
 #for key in fv_df.keys():
 #       print 'word=%s, df=%s' %(key,fv_df[key])
